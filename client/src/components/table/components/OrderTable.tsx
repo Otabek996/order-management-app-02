@@ -113,10 +113,9 @@ export default function OrderTable() {
           placeholder="Filter by status"
           slotProps={{ button: { sx: { whiteSpace: "nowrap" } } }}
         >
-          <Option value="paid">Paid</Option>
-          <Option value="pending">Pending</Option>
-          <Option value="refunded">Refunded</Option>
-          <Option value="cancelled">Cancelled</Option>
+          <Option value="paid">Awaiting payment</Option>
+          <Option value="pending">Sent</Option>
+          <Option value="refunded">Delivered</Option>
         </Select>
       </FormControl>
       <FormControl size="sm">
@@ -132,12 +131,6 @@ export default function OrderTable() {
         <FormLabel>Customer</FormLabel>
         <Select size="sm" placeholder="All">
           <Option value="all">All</Option>
-          <Option value="olivia">Olivia Rhye</Option>
-          <Option value="steve">Steve Hampton</Option>
-          <Option value="ciaran">Ciaran Murray</Option>
-          <Option value="marina">Marina Macdonald</Option>
-          <Option value="charles">Charles Fulton</Option>
-          <Option value="jay">Jay Hoper</Option>
         </Select>
       </FormControl>
     </React.Fragment>
