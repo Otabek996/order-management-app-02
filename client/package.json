@@ -1,7 +1,7 @@
 {
   "name": "client",
   "version": "0.1.0",
-  "homepage": "https://Otabek996.github.io/order-management-app-02",
+  "homepage": "https://Otabek996.github.io/order-management-app-02/",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.3",
