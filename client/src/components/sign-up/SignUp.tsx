@@ -19,7 +19,7 @@ import {
   PaletteMode,
 } from "@mui/material/styles";
 import getSignUpTheme from "./theme/getSignUpTheme";
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from "./CustomIcons";
+import { GoogleIcon } from "./CustomIcons";
 import TemplateFrame from "./TemplateFrame";
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -156,7 +156,6 @@ export default function SignUp() {
             }}
           >
             <Card variant="outlined">
-              <SitemarkIcon />
               <Typography
                 component="h1"
                 variant="h4"
@@ -232,7 +231,7 @@ export default function SignUp() {
                   Already have an account?{" "}
                   <span>
                     <Link
-                      href="/material-ui/getting-started/templates/sign-in/"
+                      href="/order-management-app-02/sign-in"
                       variant="body2"
                       sx={{ alignSelf: "center" }}
                     >
@@ -253,15 +252,6 @@ export default function SignUp() {
                   startIcon={<GoogleIcon />}
                 >
                   Sign up with Google
-                </Button>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="outlined"
-                  onClick={() => alert("Sign up with Facebook")}
-                  startIcon={<FacebookIcon />}
-                >
-                  Sign up with Facebook
                 </Button>
               </Box>
             </Card>
