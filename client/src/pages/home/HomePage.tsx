@@ -1,5 +1,7 @@
+import Table from "../../components/table/Table";
+
 function HomePage() {
-  return <h1>This is Home Page</h1>;
+  return <Table />;
 }
 
 export default HomePage;
