@@ -22,6 +22,7 @@ import ForgotPassword from "./ForgotPassword";
 import getSignInTheme from "./theme/getSignInTheme";
 import { GoogleIcon } from "./CustomIcons";
 import TemplateFrame from "./TemplateFrame";
+import { Link as RouterLink } from "react-router-dom";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -224,13 +225,9 @@ export default function SignIn() {
               <Typography sx={{ textAlign: "center" }}>
                 Don&apos;t have an account?{" "}
                 <span>
-                  <Link
-                    href="/order-management-app-02/sign-up"
-                    variant="body2"
-                    sx={{ alignSelf: "center" }}
-                  >
+                  <RouterLink to="/order-management-app-02/sign-up">
                     Sign up
-                  </Link>
+                  </RouterLink>
                 </span>
               </Typography>
             </Box>
