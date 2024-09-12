@@ -470,7 +470,7 @@ export default function OrderTable() {
           <ModalDialog color="neutral" layout="center" variant="outlined">
             <ModalClose />
             <Typography>
-              Orders{" "}
+              Order - {" "}
               {selectedDateForModal
                 ? selectedDateForModal.id
                 : "ID is not defined"}
