@@ -58,14 +58,6 @@ interface DataType {
   date: string;
 }
 
-type DataOrderType = {
-  id: string | number;
-  name?: string;
-  email?: string;
-  status?: string;
-  date?: string;
-};
-
 type StatusType = "Delivered" | "Sent" | "Pending";
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -279,7 +271,7 @@ export default function OrderTable() {
                   onChange={(event) => {
                     setSelected(
                       event.target.checked
-                        ? data.map((element: DataOrderType) => element.id)
+                        ? data.map((element: DataType) => element.id)
                         : []
                     );
                   }}
