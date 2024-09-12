@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import * as React from "react";
+import { useState, useRef } from "react";
 import { ColorPaletteProp } from "@mui/joy/styles";
 import Avatar from "@mui/joy/Avatar";
 import Box from "@mui/joy/Box";
@@ -29,34 +30,50 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
-import BlockIcon from "@mui/icons-material/Block";
+import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 
-const rows = [
-  {
-    id: "INV-1217",
-    date: "Feb 3, 2023",
-    status: "Paid",
-    customer: {
-      initial: "S",
-      name: "Sachin Flynn",
-      email: "s.flyn@email.com",
-    },
-  },
-  {
-    id: "INV-1216",
-    date: "Feb 3, 2023",
-    status: "Cancelled",
-    customer: {
-      initial: "B",
-      name: "Bradley Rosales",
-      email: "brad123@email.com",
-    },
-  },
-];
+import {
+  useGetOrdersQuery,
+  useAddOrderMutation,
+  useUpdateOrderMutation,
+  useDeleteOrderMutation,
+} from "../../../store/orders.api";
+
+type DataOrderType = {
+  id: string | number;
+  username?: string;
+  status?: string;
+  createdAt?: string;
+};
+
+type StatusType = 'Delivered' | 'Sent' | 'Pending';
+
+// const data = [
+//   {
+//     id: "INV-1217",
+//     date: "Feb 3, 2023",
+//     status: "Paid",
+//     customer: {
+//       initial: "S",
+//       name: "Sachin Flynn",
+//       email: "s.flyn@email.com",
+//     },
+//   },
+//   {
+//     id: "INV-1216",
+//     date: "Feb 3, 2023",
+//     status: "Cancelled",
+//     customer: {
+//       initial: "B",
+//       name: "Bradley Rosales",
+//       email: "brad123@email.com",
+//     },
+//   },
+// ];
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -100,10 +117,11 @@ function RowMenu() {
     </Dropdown>
   );
 }
+
 export default function OrderTable() {
-  const [order, setOrder] = React.useState<Order>("desc");
-  const [selected, setSelected] = React.useState<readonly string[]>([]);
-  const [open, setOpen] = React.useState(false);
+  const [order, setOrder] = useState<Order>("desc");
+  const [selected, setSelected] = useState<readonly string[]>([]);
+  const [open, setOpen] = useState(false);
   const renderFilters = () => (
     <React.Fragment>
       <FormControl size="sm">
@@ -113,9 +131,9 @@ export default function OrderTable() {
           placeholder="Filter by status"
           slotProps={{ button: { sx: { whiteSpace: "nowrap" } } }}
         >
-          <Option value="paid">Awaiting payment</Option>
-          <Option value="pending">Sent</Option>
-          <Option value="refunded">Delivered</Option>
+          <Option value="pending">Pending</Option>
+          <Option value="sent">Sent</Option>
+          <Option value="delivered">Delivered</Option>
         </Select>
       </FormControl>
       <FormControl size="sm">
@@ -135,6 +153,19 @@ export default function OrderTable() {
       </FormControl>
     </React.Fragment>
   );
+
+  const [count, setCount] = useState("");
+
+  const { data = [], isLoading } = useGetOrdersQuery(count);
+  const [addOrder, { isError }] = useAddOrderMutation();
+  const [updateOrder] = useUpdateOrderMutation();
+  const [deleteOrder] = useDeleteOrderMutation();
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0]; // Extract the YYYY-MM-DD part
+  };
+
   return (
     <React.Fragment>
       <Sheet
@@ -155,6 +186,7 @@ export default function OrderTable() {
         >
           <FilterAltIcon />
         </IconButton>
+        
         <Modal open={open} onClose={() => setOpen(false)}>
           <ModalDialog aria-labelledby="filter-modal" layout="fullscreen">
             <ModalClose />
@@ -228,16 +260,16 @@ export default function OrderTable() {
                 <Checkbox
                   size="sm"
                   indeterminate={
-                    selected.length > 0 && selected.length !== rows.length
+                    selected.length > 0 && selected.length !== data.length
                   }
-                  checked={selected.length === rows.length}
+                  checked={selected.length === data.length}
                   onChange={(event) => {
                     setSelected(
-                      event.target.checked ? rows.map((row) => row.id) : []
+                      event.target.checked ? data.map((element: DataOrderType) => element.id) : []
                     );
                   }}
                   color={
-                    selected.length > 0 || selected.length === rows.length
+                    selected.length > 0 || selected.length === data.length
                       ? "primary"
                       : undefined
                   }
@@ -265,7 +297,7 @@ export default function OrderTable() {
                       : { "& svg": { transform: "rotate(180deg)" } },
                   ]}
                 >
-                  Invoice
+                  ID
                 </Link>
               </th>
               <th style={{ width: 140, padding: "12px 6px" }}>Date</th>
@@ -275,18 +307,18 @@ export default function OrderTable() {
             </tr>
           </thead>
           <tbody>
-            {[...rows].sort(getComparator(order, "id")).map((row) => (
-              <tr key={row.id}>
+            {[...data].sort(getComparator(order, "id")).map((element) => (
+              <tr key={element.id}>
                 <td style={{ textAlign: "center", width: 120 }}>
                   <Checkbox
                     size="sm"
-                    checked={selected.includes(row.id)}
-                    color={selected.includes(row.id) ? "primary" : undefined}
+                    checked={selected.includes(element.id)}
+                    color={selected.includes(element.id) ? "primary" : undefined}
                     onChange={(event) => {
                       setSelected((ids) =>
                         event.target.checked
-                          ? ids.concat(row.id)
-                          : ids.filter((itemId) => itemId !== row.id)
+                          ? ids.concat(element.id)
+                          : ids.filter((itemId) => itemId !== element.id)
                       );
                     }}
                     slotProps={{ checkbox: { sx: { textAlign: "left" } } }}
@@ -294,10 +326,10 @@ export default function OrderTable() {
                   />
                 </td>
                 <td>
-                  <Typography level="body-xs">{row.id}</Typography>
+                  <Typography level="body-xs">{element.id}</Typography>
                 </td>
                 <td>
-                  <Typography level="body-xs">{row.date}</Typography>
+                  <Typography level="body-xs">{formatDate(element.date)}</Typography>
                 </td>
                 <td>
                   <Chip
@@ -305,31 +337,31 @@ export default function OrderTable() {
                     size="sm"
                     startDecorator={
                       {
-                        Paid: <CheckRoundedIcon />,
-                        Refunded: <AutorenewRoundedIcon />,
-                        Cancelled: <BlockIcon />,
-                      }[row.status]
+                        Delivered: <CheckRoundedIcon />,
+                        Sent: <AutorenewRoundedIcon />,
+                        Pending: <HourglassTopIcon />,
+                      }[element.status as StatusType]
                     }
                     color={
                       {
-                        Paid: "success",
-                        Refunded: "neutral",
-                        Cancelled: "danger",
-                      }[row.status] as ColorPaletteProp
+                        Delivered: "success",
+                        Sent: "primary",
+                        Pending: "warning",
+                      }[element.status as StatusType] as ColorPaletteProp
                     }
                   >
-                    {row.status}
+                    {element.status}
                   </Chip>
                 </td>
                 <td>
                   <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                    <Avatar size="sm">{row.customer.initial}</Avatar>
+                    <Avatar size="sm">{element.name.charAt(0)}</Avatar>
                     <div>
                       <Typography level="body-xs">
-                        {row.customer.name}
+                        {element.name}
                       </Typography>
                       <Typography level="body-xs">
-                        {row.customer.email}
+                        {element.email}
                       </Typography>
                     </div>
                   </Box>
@@ -377,6 +409,7 @@ export default function OrderTable() {
           </IconButton>
         ))}
         <Box sx={{ flex: 1 }} />
+        
         <Button
           size="sm"
           variant="outlined"
