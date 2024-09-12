@@ -1,9 +1,10 @@
 import * as React from "react";
 import { useState, forwardRef, useImperativeHandle } from "react";
-import Alert from "@mui/material/Alert";
-import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
+
+import Snackbar from "@mui/joy/Snackbar";
 import CloseIcon from "@mui/icons-material/Close";
-import IconButton from "@mui/material/IconButton";
+import ReportProblemIcon from "@mui/icons-material/ReportProblem";
+import Button from "@mui/joy/Button";
 
 const SnackbarAlert = forwardRef(
   (
@@ -12,23 +13,43 @@ const SnackbarAlert = forwardRef(
       type,
     }: {
       text: string;
-      type: "success" | "error" | "info" | "warning";
+      type: "success" | "danger" | "primary" | "warning";
     },
     ref
   ) => {
     const [open, setOpen] = useState(false);
+    const [duration, setDuration] = React.useState<undefined | number>();
+    const [left, setLeft] = React.useState<undefined | number>();
+    const timer = React.useRef<ReturnType<typeof setInterval> | undefined>(
+      undefined
+    );
+    const countdown = () => {
+      timer.current = setInterval(() => {
+        setLeft((prev) =>
+          prev === undefined ? prev : Math.max(0, prev - 100)
+        );
+      }, 100);
+    };
+    React.useEffect(() => {
+      if (open && duration !== undefined && duration > 0) {
+        setLeft(duration);
+        countdown();
+      } else {
+        window.clearInterval(timer.current);
+      }
+    }, [open, duration]);
+    const handlePause = () => {
+      window.clearInterval(timer.current);
+    };
+    const handleResume = () => {
+      countdown();
+    };
 
     const handleOpenSnackbar = () => {
       setOpen(true);
     };
 
-    const handleCloseSnackbar = (
-      event: React.SyntheticEvent | Event,
-      reason?: SnackbarCloseReason
-    ) => {
-      if (reason === "clickaway") {
-        return;
-      }
+    const handleCloseSnackbar = () => {
       setOpen(false);
     };
 
@@ -38,36 +59,39 @@ const SnackbarAlert = forwardRef(
       },
     }));
 
-    const action = (
-      <React.Fragment>
-        <IconButton
-          size="small"
-          aria-label="close"
-          color="inherit"
-          onClick={handleCloseSnackbar}
-        >
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      </React.Fragment>
-    );
-
     return (
-      <>
+      <React.Fragment>
         <Snackbar
           open={open}
-          autoHideDuration={3000}
           onClose={handleCloseSnackbar}
-          action={action}
+          autoHideDuration={duration}
+          resumeHideDuration={left}
+          onMouseEnter={handlePause}
+          onMouseLeave={handleResume}
+          onFocus={handlePause}
+          onBlur={handleResume}
+          onUnmount={() => setLeft(undefined)}
+          sx={{ minWidth: 360 }}
+          color={type}
+          size="md"
+          variant="soft"
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          // startDecorator={<ReportProblemIcon />}
+          endDecorator={
+            <Button
+              size="sm"
+              aria-label="close"
+              color="danger"
+              variant="outlined"
+              onClick={handleCloseSnackbar}
+            >
+              <CloseIcon />
+            </Button>
+          }
         >
-          <Alert
-            onClose={handleCloseSnackbar}
-            severity={type}
-            sx={{ width: "100%" }}
-          >
-            {text}
-          </Alert>
+          {text}
         </Snackbar>
-      </>
+      </React.Fragment>
     );
   }
 );
