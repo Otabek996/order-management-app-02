@@ -150,7 +150,13 @@ export default function OrderTable() {
     useState<DataType | null>(null);
   const [requestType, setRequestType] = useState("");
 
+  const [newOrderId, setNewOrderId] = useState("");
+  const [newOrderName, setNewOrderName] = useState("");
+  const [newOrderEmail, setNewOrderEmail] = useState("");
+  const [newOrderStatus, setNewOrderStatus] = useState("");
+
   const snackbarRefDelete = useRef<any>(null);
+  const snackbarRefAdd = useRef<any>(null);
 
   const [count, setCount] = useState("");
 
@@ -165,6 +171,32 @@ export default function OrderTable() {
     handleOpenDeleteSnackbar();
   };
 
+  const handleAddOrder = async () => {
+    try {
+      if (newOrderName && newOrderEmail && newOrderStatus) {
+        await addOrder({
+          // id: newOrderId,
+          name: newOrderName,
+          email: newOrderEmail,
+          status: newOrderStatus,
+        }).unwrap();
+        // setNewOrderId("");
+        setNewOrderName("");
+        setNewOrderEmail("");
+        setNewOrderStatus("");
+        triggerSnackbarAdd();
+      }
+    } catch (error) {
+      console.error("Failed to add new order:", error);
+    }
+  };
+
+  const triggerSnackbarAdd = () => {
+    if (snackbarRefAdd.current) {
+      snackbarRefAdd.current.openSnackbar();
+    }
+  };
+
   const triggerSnackbarDelete = () => {
     if (snackbarRefDelete.current) snackbarRefDelete.current.openSnackbar();
   };
@@ -173,6 +205,7 @@ export default function OrderTable() {
   };
 
   const formatDate = (dateString: string): string => {
+    if (dateString === "") return "";
     const date = new Date(dateString);
     return date.toISOString().split("T")[0]; // Extract the YYYY-MM-DD part
   };
@@ -469,16 +502,50 @@ export default function OrderTable() {
         <Modal open={openDateModal} onClose={handleCloseDateModal}>
           <ModalDialog color="neutral" layout="center" variant="outlined">
             <ModalClose />
-            <Typography>
-              Order - {" "}
-              {selectedDateForModal
-                ? selectedDateForModal.id
-                : "ID is not defined"}
-            </Typography>
+            <Typography>Order</Typography>
 
             <Divider sx={{ my: 2 }} />
 
             <Stack spacing={3}>
+              <FormControl>
+                <FormLabel>ID</FormLabel>
+                {requestType === "get" ? (
+                  <Input
+                    required
+                    color="neutral"
+                    placeholder="ID"
+                    size="lg"
+                    variant="outlined"
+                    disabled
+                    value={
+                      selectedDateForModal
+                        ? selectedDateForModal.id
+                        : "ID is not defined"
+                    }
+                  />
+                ) : (
+                  <Input
+                    required
+                    color="neutral"
+                    placeholder="ID"
+                    size="lg"
+                    variant="outlined"
+                    disabled
+                    value={
+                      selectedDateForModal
+                        ? selectedDateForModal.id
+                        : "ID is not defined"
+                    }
+                    onChange={(e) => {
+                      setSelectedDateForModal((prev) =>
+                        prev ? { ...prev, id: e.target.value } : null
+                      );
+                      setNewOrderId(e.target.value);
+                    }}
+                  />
+                )}
+              </FormControl>
+
               <FormControl>
                 <FormLabel>Name</FormLabel>
                 <Input
@@ -492,6 +559,12 @@ export default function OrderTable() {
                       ? selectedDateForModal.name
                       : "NAME is not defined"
                   }
+                  onChange={(e) => {
+                    setSelectedDateForModal((prev) =>
+                      prev ? { ...prev, name: e.target.value } : null
+                    );
+                    setNewOrderName(e.target.value);
+                  }}
                 />
               </FormControl>
 
@@ -508,6 +581,12 @@ export default function OrderTable() {
                       ? selectedDateForModal.email
                       : "EMAIL is not defined"
                   }
+                  onChange={(e) => {
+                    setSelectedDateForModal((prev) =>
+                      prev ? { ...prev, email: e.target.value } : null
+                    );
+                    setNewOrderEmail(e.target.value);
+                  }}
                 />
               </FormControl>
 
@@ -524,6 +603,12 @@ export default function OrderTable() {
                       ? selectedDateForModal.status
                       : "STATUS is not defined"
                   }
+                  onChange={(e) => {
+                    setSelectedDateForModal((prev) =>
+                      prev ? { ...prev, status: e.target.value } : null
+                    );
+                    setNewOrderStatus(e.target.value);
+                  }}
                 />
               </FormControl>
 
@@ -535,11 +620,17 @@ export default function OrderTable() {
                   placeholder="Created Date"
                   size="lg"
                   variant="outlined"
+                  disabled
                   value={
                     selectedDateForModal
                       ? formatDate(selectedDateForModal.date)
                       : "DATE is not defined"
                   }
+                  onChange={(e) => {
+                    setSelectedDateForModal((prev) =>
+                      prev ? { ...prev, date: e.target.value } : null
+                    );
+                  }}
                 />
               </FormControl>
             </Stack>
@@ -557,7 +648,25 @@ export default function OrderTable() {
                 </IconButton>
               )}
 
-              <Button color="primary" variant="outlined">
+              <Button
+                color="primary"
+                variant="outlined"
+                onClick={() => {
+                  if (selectedDateForModal && requestType === "get") {
+                    // handleUpdateOrder(selectedDateForModal.id.toString(), {
+                    //   username: selectedDateForModal.username,
+                    //   status: selectedDateForModal.status,
+                    //   createdAt: selectedDateForModal.createdAt,
+                    // });
+                    console.log("Order was updated");
+                  } else {
+                    handleAddOrder();
+                    console.log("Order was added");
+                  }
+                  handleCloseDateModal();
+                  setSelectedDateForModal(null);
+                }}
+              >
                 {requestType === "get" ? "Update order" : "Add order"}
               </Button>
             </Box>
@@ -565,7 +674,31 @@ export default function OrderTable() {
         </Modal>
 
         <SnackbarAlert ref={snackbarRefDelete} text="Deleted" type="danger" />
+        {/* <SnackbarAlert ref={snackbarRefAdd} text="Added" type="success" /> */}
       </Sheet>
+
+      <Box>
+        <Button
+          color="neutral"
+          size="md"
+          variant="outlined"
+          onClick={(event) =>
+            handleOpenDateModal(
+              event,
+              {
+                id: "",
+                name: "",
+                email: "",
+                status: "",
+                date: "",
+              },
+              "add"
+            )
+          }
+        >
+          Add new order
+        </Button>
+      </Box>
     </React.Fragment>
   );
 }
