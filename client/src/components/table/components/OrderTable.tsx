@@ -30,11 +30,12 @@ import {
   TablePagination,
   tablePaginationClasses as classes,
 } from "@mui/base/TablePagination";
+import Stack from "@mui/joy/Stack";
+
 import FirstPageRoundedIcon from "@mui/icons-material/FirstPageRounded";
 import LastPageRoundedIcon from "@mui/icons-material/LastPageRounded";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
-
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
@@ -42,6 +43,9 @@ import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
+import DeleteIcon from "@mui/icons-material/Delete";
+
+import SnackbarAlert from "../../snackbar-alert/SnackbarAlert";
 
 import {
   useGetOrdersQuery,
@@ -95,7 +99,6 @@ function RowMenu() {
       </MenuButton>
       <Menu size="sm" sx={{ minWidth: 140 }}>
         <MenuItem>Edit</MenuItem>
-        <MenuItem>Rename</MenuItem>
         <Divider />
         <MenuItem color="danger">Delete</MenuItem>
       </Menu>
@@ -142,12 +145,32 @@ export default function OrderTable() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
+  const [openDateModal, setOpenDateModal] = useState(false);
+  const [selectedDateForModal, setSelectedDateForModal] =
+    useState<DataType | null>(null);
+  const [requestType, setRequestType] = useState("");
+
+  const snackbarRefDelete = useRef<any>(null);
+
   const [count, setCount] = useState("");
 
   const { data = [], isLoading } = useGetOrdersQuery(count);
   const [addOrder, { isError }] = useAddOrderMutation();
   const [updateOrder] = useUpdateOrderMutation();
   const [deleteOrder] = useDeleteOrderMutation();
+
+  const handleDeleteOrder = async (id: string) => {
+    await deleteOrder(id).unwrap();
+    handleCloseDateModal();
+    handleOpenDeleteSnackbar();
+  };
+
+  const triggerSnackbarDelete = () => {
+    if (snackbarRefDelete.current) snackbarRefDelete.current.openSnackbar();
+  };
+  const handleOpenDeleteSnackbar = () => {
+    triggerSnackbarDelete();
+  };
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -169,6 +192,20 @@ export default function OrderTable() {
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const handleOpenDateModal = (
+    event: React.MouseEvent<unknown>,
+    selectedDate: DataType,
+    request: string
+  ) => {
+    setRequestType(request);
+    setSelectedDateForModal(selectedDate);
+    setOpenDateModal(true);
+  };
+
+  const handleCloseDateModal = () => {
+    setOpenDateModal(false);
   };
 
   return (
@@ -208,6 +245,7 @@ export default function OrderTable() {
           </ModalDialog>
         </Modal>
       </Sheet>
+
       <Box
         className="SearchAndFilters-tabletUp"
         sx={{
@@ -231,6 +269,7 @@ export default function OrderTable() {
         </FormControl>
         {renderFilters()}
       </Box>
+
       <Sheet
         className="OrderTableContainer"
         variant="outlined"
@@ -313,6 +352,7 @@ export default function OrderTable() {
               <th style={{ width: 140, padding: "12px 6px" }}> </th>
             </tr>
           </thead>
+
           <tbody>
             {(rowsPerPage > 0
               ? [...data]
@@ -320,7 +360,10 @@ export default function OrderTable() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               : [...data].sort(getComparator(order, "id"))
             ).map((element: DataType) => (
-              <tr key={element.id}>
+              <tr
+                key={element.id}
+                onClick={(event) => handleOpenDateModal(event, element, "get")}
+              >
                 <td style={{ textAlign: "center", width: 120 }}>
                   <Checkbox
                     size="sm"
@@ -422,6 +465,106 @@ export default function OrderTable() {
             </tr>
           </tfoot>
         </Table>
+
+        <Modal open={openDateModal} onClose={handleCloseDateModal}>
+          <ModalDialog color="neutral" layout="center" variant="outlined">
+            <ModalClose />
+            <Typography>
+              Orders{" "}
+              {selectedDateForModal
+                ? selectedDateForModal.id
+                : "ID is not defined"}
+            </Typography>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Stack spacing={3}>
+              <FormControl>
+                <FormLabel>Name</FormLabel>
+                <Input
+                  required
+                  color="neutral"
+                  placeholder="Name"
+                  size="lg"
+                  variant="outlined"
+                  value={
+                    selectedDateForModal
+                      ? selectedDateForModal.name
+                      : "NAME is not defined"
+                  }
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Email</FormLabel>
+                <Input
+                  required
+                  color="neutral"
+                  placeholder="Email"
+                  size="lg"
+                  variant="outlined"
+                  value={
+                    selectedDateForModal
+                      ? selectedDateForModal.email
+                      : "EMAIL is not defined"
+                  }
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Status</FormLabel>
+                <Input
+                  required
+                  color="neutral"
+                  placeholder="Status"
+                  size="lg"
+                  variant="outlined"
+                  value={
+                    selectedDateForModal
+                      ? selectedDateForModal.status
+                      : "STATUS is not defined"
+                  }
+                />
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Created Date</FormLabel>
+                <Input
+                  required
+                  color="neutral"
+                  placeholder="Created Date"
+                  size="lg"
+                  variant="outlined"
+                  value={
+                    selectedDateForModal
+                      ? formatDate(selectedDateForModal.date)
+                      : "DATE is not defined"
+                  }
+                />
+              </FormControl>
+            </Stack>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Box sx={{ display: "flex", gap: 2 }}>
+              {selectedDateForModal && (
+                <IconButton
+                  color="danger"
+                  variant="outlined"
+                  onClick={() => handleDeleteOrder(selectedDateForModal.id)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              )}
+
+              <Button color="primary" variant="outlined">
+                {requestType === "get" ? "Update order" : "Add order"}
+              </Button>
+            </Box>
+          </ModalDialog>
+        </Modal>
+
+        <SnackbarAlert ref={snackbarRefDelete} text="Deleted" type="danger" />
       </Sheet>
     </React.Fragment>
   );
