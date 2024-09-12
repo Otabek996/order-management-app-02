@@ -7,7 +7,6 @@ import SignUpPage from "./pages/sign-up/SignUpPage";
 function App() {
   return (
     <div className="App">
-      <h1>This is App</h1>
       <Routes>
         <Route path="/order-management-app-02" element={<HomePage />} />
         <Route path="/order-management-app-02/sign-in" element={<SignInPage />} />
