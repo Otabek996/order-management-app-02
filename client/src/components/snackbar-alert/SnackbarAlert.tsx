@@ -81,7 +81,7 @@ const SnackbarAlert = forwardRef(
             <Button
               size="sm"
               aria-label="close"
-              color="danger"
+              color={type}
               variant="outlined"
               onClick={handleCloseSnackbar}
             >

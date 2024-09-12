@@ -638,7 +638,7 @@ export default function OrderTable() {
             <Divider sx={{ my: 2 }} />
 
             <Box sx={{ display: "flex", gap: 2 }}>
-              {selectedDateForModal && (
+              {selectedDateForModal && requestType === "get" && (
                 <IconButton
                   color="danger"
                   variant="outlined"
@@ -674,7 +674,7 @@ export default function OrderTable() {
         </Modal>
 
         <SnackbarAlert ref={snackbarRefDelete} text="Deleted" type="danger" />
-        {/* <SnackbarAlert ref={snackbarRefAdd} text="Added" type="success" /> */}
+        <SnackbarAlert ref={snackbarRefAdd} text="Added" type="success" />
       </Sheet>
 
       <Box>
