@@ -21,10 +21,6 @@ import Sheet from "@mui/joy/Sheet";
 import Checkbox from "@mui/joy/Checkbox";
 import IconButton from "@mui/joy/IconButton";
 import Typography from "@mui/joy/Typography";
-import Menu from "@mui/joy/Menu";
-import MenuButton from "@mui/joy/MenuButton";
-import MenuItem from "@mui/joy/MenuItem";
-import Dropdown from "@mui/joy/Dropdown";
 import { styled } from "@mui/system";
 import {
   TablePagination,
@@ -43,7 +39,6 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import HourglassTopIcon from "@mui/icons-material/HourglassTop";
 import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
-import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import SnackbarAlert from "../../snackbar-alert/SnackbarAlert";
@@ -87,24 +82,6 @@ function getComparator<Key extends keyof any>(
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
-}
-
-function RowMenu() {
-  return (
-    <Dropdown>
-      <MenuButton
-        slots={{ root: IconButton }}
-        slotProps={{ root: { variant: "plain", color: "neutral", size: "sm" } }}
-      >
-        <MoreHorizRoundedIcon />
-      </MenuButton>
-      <Menu size="sm" sx={{ minWidth: 140 }}>
-        <MenuItem>Edit</MenuItem>
-        <Divider />
-        <MenuItem color="danger">Delete</MenuItem>
-      </Menu>
-    </Dropdown>
-  );
 }
 
 export default function OrderTable() {
@@ -490,9 +467,9 @@ export default function OrderTable() {
                   </Box>
                 </td>
                 <td>
-                  <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                    <RowMenu />
-                  </Box>
+                  <Box
+                    sx={{ display: "flex", gap: 2, alignItems: "center" }}
+                  ></Box>
                 </td>
               </tr>
             ))}
