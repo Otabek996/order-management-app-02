@@ -142,8 +142,8 @@ export default function OrderTable() {
     </React.Fragment>
   );
 
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const [openDateModal, setOpenDateModal] = useState(false);
   const [selectedDateForModal, setSelectedDateForModal] =
