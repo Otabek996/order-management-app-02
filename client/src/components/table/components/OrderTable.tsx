@@ -687,6 +687,7 @@ export default function OrderTable() {
 
         <SnackbarAlert ref={snackbarRefDelete} text="Deleted" type="danger" />
         <SnackbarAlert ref={snackbarRefAdd} text="Added" type="success" />
+        <SnackbarAlert ref={snackbarRefUpdate} text="Updated" type="primary" />
       </Sheet>
 
       <Box>
