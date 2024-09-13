@@ -31,6 +31,7 @@ import {
   tablePaginationClasses as classes,
 } from "@mui/base/TablePagination";
 import Stack from "@mui/joy/Stack";
+import CircularProgress from "@mui/joy/CircularProgress";
 
 import FirstPageRoundedIcon from "@mui/icons-material/FirstPageRounded";
 import LastPageRoundedIcon from "@mui/icons-material/LastPageRounded";
@@ -262,6 +263,18 @@ export default function OrderTable() {
   const handleCloseDateModal = () => {
     setOpenDateModal(false);
   };
+
+  if (isLoading)
+    return (
+      <Box sx={{ display: "flex", mx: "auto", my: 20 }}>
+        <CircularProgress
+          color="neutral"
+          size="md"
+          value={40}
+          variant="solid"
+        />
+      </Box>
+    );
 
   return (
     <React.Fragment>
