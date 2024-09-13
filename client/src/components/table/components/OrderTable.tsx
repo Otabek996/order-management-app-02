@@ -157,6 +157,7 @@ export default function OrderTable() {
 
   const snackbarRefDelete = useRef<any>(null);
   const snackbarRefAdd = useRef<any>(null);
+  const snackbarRefUpdate = useRef<any>(null);
 
   const [count, setCount] = useState("");
 
@@ -189,6 +190,27 @@ export default function OrderTable() {
     } catch (error) {
       console.error("Failed to add new order:", error);
     }
+  };
+
+  const handleUpdateOrder = async (
+    id: string,
+    updatedData: Partial<DataType>
+  ) => {
+    try {
+      await updateOrder({ id, ...updatedData }).unwrap();
+      handleOpenUpdateSnackbar();
+    } catch (error) {
+      console.error("Failed to update order:", error);
+    }
+  };
+
+  const triggerSnackbarUpdate = () => {
+    if (snackbarRefUpdate.current) {
+      snackbarRefUpdate.current.openSnackbar();
+    }
+  };
+  const handleOpenUpdateSnackbar = () => {
+    triggerSnackbarUpdate();
   };
 
   const triggerSnackbarAdd = () => {
@@ -653,11 +675,11 @@ export default function OrderTable() {
                 variant="outlined"
                 onClick={() => {
                   if (selectedDateForModal && requestType === "get") {
-                    // handleUpdateOrder(selectedDateForModal.id.toString(), {
-                    //   username: selectedDateForModal.username,
-                    //   status: selectedDateForModal.status,
-                    //   createdAt: selectedDateForModal.createdAt,
-                    // });
+                    handleUpdateOrder(selectedDateForModal.id.toString(), {
+                      name: selectedDateForModal.name,
+                      email: selectedDateForModal.email,
+                      status: selectedDateForModal.status,
+                    });
                     console.log("Order was updated");
                   } else {
                     handleAddOrder();
